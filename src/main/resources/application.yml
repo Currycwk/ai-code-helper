@@ -18,7 +18,7 @@ app:
   prompts:
     default-key: code-helper
   security:
-    jwt-secret: ${APP_JWT_SECRET:change-me}
+    jwt-secret: ${APP_JWT_SECRET:change-this-secret-key-to-a-new-one}  #太短会导致生成的JWT Token过短，无法正常使用
     expiration-hours: 72
   admin:
     bootstrap-username: ${APP_ADMIN_USERNAME:admin}
