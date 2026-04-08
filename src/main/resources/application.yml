@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: ai-code-helper
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/db1?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&serverTimezone=Asia/Shanghai}
+    username: ${DB_USERNAME:change-me}
+    password: ${DB_PASSWORD:change-me}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jackson:
+    default-property-inclusion: non_null
+langchain4j:
+  community:
+    dashscope:
+      embedding-model:
+        model-name: text-embedding-v3
+        api-key: ${DASHSCOPE_API_KEY:change-me}
+app:
+  prompts:
+    default-key: code-helper
+  security:
+    jwt-secret: ${APP_JWT_SECRET:change-me}
+    expiration-hours: 72
+  admin:
+    bootstrap-username: ${APP_ADMIN_USERNAME:admin}
+    bootstrap-password: ${APP_ADMIN_PASSWORD:admin123456}
+    bootstrap-display-name: ${APP_ADMIN_DISPLAY_NAME:System Admin}
+  models:
+    default-model: qwen-max
+    catalog:
+      - name: qwen-max
+        api-key: ${DASHSCOPE_API_KEY:change-me}
+        enable-search: true
+        temperature: 0.7
+        max-tokens: 4096
+      - name: qwen-plus
+        api-key: ${DASHSCOPE_API_KEY:change-me}
+        enable-search: true
+        temperature: 0.7
+        max-tokens: 4096
+server:
+  port: 8081
+  servlet:
+    context-path: /api
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+knife4j:
+  enable: true
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+logging:
+  level:
+    org.mybatis.spring: warn
+    org.mybatis.spring.SqlSessionUtils: error
+    org.springframework.jdbc.datasource.DataSourceUtils: error
