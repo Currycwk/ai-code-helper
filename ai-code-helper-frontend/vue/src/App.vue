@@ -55,7 +55,8 @@ const workspace = useChatWorkspace({
   isAuthenticated: auth.isAuthenticated,
   activeView,
   showNotice,
-  refreshUserData: auth.refreshUserData,
+  refreshProfile: auth.refreshProfile,
+  refreshUsageSummary: auth.refreshUsageSummary,
   onUnauthorized: handleLogout
 });
 
@@ -89,7 +90,7 @@ async function handleSavePreferredModel() {
 
 async function handleAdminTrendDaysChange(value: number) {
   admin.adminTrendDays.value = value;
-  await admin.refreshAdminPanel();
+  await admin.refreshTrend();
 }
 
 watch(activeView, async (view) => {
@@ -211,6 +212,8 @@ onBeforeUnmount(() => {
           :model-quota-saving-user-id="admin.modelQuotaSavingUserId.value"
           @update:admin-trend-days="handleAdminTrendDaysChange"
           @refresh="admin.refreshAdminPanel()"
+          @refresh-users="admin.refreshUsers()"
+          @refresh-audit-logs="admin.refreshAuditLogs()"
           @update-quota="admin.updateUserQuota"
           @update-role="admin.updateUserRole"
           @update-status="admin.updateUserStatus"

@@ -23,16 +23,27 @@ export function useAuth() {
   const isAuthenticated = computed(() => Boolean(token.value && currentUser.value));
   const isAdmin = computed(() => currentUser.value?.role === "ADMIN");
 
+  async function refreshProfile() {
+    if (!token.value) return;
+    const { data } = await apiClient.get<UserProfileResponse>("/auth/me");
+    currentUser.value = data;
+  }
+
+  async function refreshModels() {
+    if (!token.value) return;
+    const { data } = await apiClient.get<ModelSummaryResponse[]>("/users/me/models");
+    availableModels.value = data;
+  }
+
+  async function refreshUsageSummary() {
+    if (!token.value) return;
+    const { data } = await apiClient.get<UserUsageSummaryResponse>("/users/me/usage");
+    usageSummary.value = data;
+  }
+
   async function refreshUserData() {
     if (!token.value) return;
-    const [me, models, usage] = await Promise.all([
-      apiClient.get<UserProfileResponse>("/auth/me"),
-      apiClient.get<ModelSummaryResponse[]>("/users/me/models"),
-      apiClient.get<UserUsageSummaryResponse>("/users/me/usage")
-    ]);
-    currentUser.value = me.data;
-    availableModels.value = models.data;
-    usageSummary.value = usage.data;
+    await Promise.all([refreshProfile(), refreshModels(), refreshUsageSummary()]);
   }
 
   async function login() {
@@ -107,7 +118,10 @@ export function useAuth() {
     login,
     loginForm,
     logout,
+    refreshModels,
+    refreshProfile,
     refreshUserData,
+    refreshUsageSummary,
     register,
     registerForm,
     savePreferredModel,

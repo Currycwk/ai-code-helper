@@ -14,7 +14,8 @@ interface ChatWorkspaceOptions {
   isAuthenticated: ComputedRef<boolean>;
   activeView: Ref<AppView>;
   showNotice: (message: string) => void;
-  refreshUserData: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
+  refreshUsageSummary: () => Promise<void>;
   onUnauthorized: () => void;
 }
 
@@ -94,6 +95,12 @@ export function useChatWorkspace(options: ChatWorkspaceOptions) {
     } finally {
       conversationsLoading.value = false;
     }
+  }
+
+  function syncCurrentConversationFromList() {
+    if (!currentConversationId.value) return;
+    const current = conversations.value.find((item) => item.id === currentConversationId.value);
+    if (current) currentConversationTitle.value = current.title;
   }
 
   async function openConversation(id: number, switchToChat = true) {
@@ -286,7 +293,8 @@ export function useChatWorkspace(options: ChatWorkspaceOptions) {
 
     try {
       await startFetchStream(conversationId, aiMessage, content);
-      await Promise.all([options.refreshUserData(), loadConversations(), openConversation(conversationId, false)]);
+      await Promise.all([options.refreshProfile(), options.refreshUsageSummary(), loadConversations()]);
+      syncCurrentConversationFromList();
     } catch (error: any) {
       aiMessage.content += `\n\n${error?.message ?? "请求失败"}`;
       messages.value = [...messages.value];
@@ -323,7 +331,8 @@ export function useChatWorkspace(options: ChatWorkspaceOptions) {
         body: JSON.stringify({ message: nextContent })
       });
       await consumeSseResponse(response, aiMessage);
-      await Promise.all([options.refreshUserData(), loadConversations(), openConversation(currentConversationId.value, false)]);
+      await Promise.all([options.refreshProfile(), options.refreshUsageSummary(), loadConversations()]);
+      syncCurrentConversationFromList();
       options.showNotice("消息已更新并重新生成。");
     } catch (error: any) {
       aiMessage.content += `\n\n${error?.message ?? "重新生成失败"}`;

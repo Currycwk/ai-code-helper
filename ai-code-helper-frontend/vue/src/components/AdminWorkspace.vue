@@ -37,6 +37,8 @@ defineProps<{
 const emit = defineEmits<{
   (e: "update:adminTrendDays", value: number): void;
   (e: "refresh"): void;
+  (e: "refresh-users"): void;
+  (e: "refresh-audit-logs"): void;
   (e: "update-quota", user: UserProfileResponse): void;
   (e: "update-role", user: UserProfileResponse): void;
   (e: "update-status", user: UserProfileResponse): void;
@@ -137,7 +139,7 @@ const emit = defineEmits<{
         </div>
         <div class="audit-filter-bar user-filter-bar">
           <input v-model="userFilters.userId" type="number" min="1" placeholder="按用户 ID 筛选" />
-          <button class="secondary-button small" @click="emit('refresh')">筛选用户</button>
+          <button class="secondary-button small" @click="emit('refresh-users')">筛选用户</button>
         </div>
         <div class="user-table">
           <div class="user-table-head admin-user-head">
@@ -215,7 +217,7 @@ const emit = defineEmits<{
           </select>
           <input v-model="auditFilters.start" type="datetime-local" />
           <input v-model="auditFilters.end" type="datetime-local" />
-          <button class="secondary-button small" @click="emit('refresh')">筛选</button>
+          <button class="secondary-button small" @click="emit('refresh-audit-logs')">筛选</button>
         </div>
         <div class="audit-log-list">
           <div v-for="log in auditLogs" :key="log.id" class="audit-log-item">

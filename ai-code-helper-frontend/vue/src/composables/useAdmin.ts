@@ -33,47 +33,69 @@ export function useAdmin(isAdmin: ComputedRef<boolean>) {
   const modelQuotaSavingUserId = ref<number | null>(null);
   const trendMax = computed(() => Math.max(1, ...adminTrend.value.map((item) => item.requestCount)));
 
-  async function refreshAdminPanel() {
-    if (!isAdmin.value) return;
-    const params: Record<string, string | number | boolean> = {};
+  function buildUserParams() {
     const userParams: Record<string, number> = {};
     if (userFilters.value.userId) userParams.userId = Number(userFilters.value.userId);
+    return userParams;
+  }
+
+  function buildAuditParams() {
+    const params: Record<string, string | number | boolean> = {};
     if (auditFilters.value.userId) params.userId = Number(auditFilters.value.userId);
     if (auditFilters.value.modelName) params.modelName = auditFilters.value.modelName;
     if (auditFilters.value.success) params.success = auditFilters.value.success === "true";
     if (auditFilters.value.start) params.start = auditFilters.value.start;
     if (auditFilters.value.end) params.end = auditFilters.value.end;
+    return params;
+  }
 
-    const [dashboard, users, trend, logs, templates] = await Promise.allSettled([
-      apiClient.get<AdminDashboardResponse>("/admin/dashboard"),
-      apiClient.get<UserProfileResponse[]>("/admin/users", { params: userParams }),
-      apiClient.get<UsageTrendPointResponse[]>("/admin/usage/trend", { params: { days: adminTrendDays.value } }),
-      apiClient.get<AuditLogResponse[]>("/admin/audit-logs", { params }),
-      apiClient.get<SubscriptionTemplateResponse[]>("/admin/subscription-templates")
+  async function refreshDashboard() {
+    if (!isAdmin.value) return;
+    const { data } = await apiClient.get<AdminDashboardResponse>("/admin/dashboard");
+    adminDashboard.value = data;
+  }
+
+  async function refreshUsers() {
+    if (!isAdmin.value) return;
+    const { data } = await apiClient.get<UserProfileResponse[]>("/admin/users", { params: buildUserParams() });
+    adminUsers.value = data;
+  }
+
+  async function refreshTrend() {
+    if (!isAdmin.value) return;
+    const { data } = await apiClient.get<UsageTrendPointResponse[]>("/admin/usage/trend", { params: { days: adminTrendDays.value } });
+    adminTrend.value = data;
+  }
+
+  async function refreshAuditLogs() {
+    if (!isAdmin.value) return;
+    const { data } = await apiClient.get<AuditLogResponse[]>("/admin/audit-logs", { params: buildAuditParams() });
+    auditLogs.value = data;
+  }
+
+  async function refreshTemplates() {
+    if (!isAdmin.value) return;
+    const { data } = await apiClient.get<SubscriptionTemplateResponse[]>("/admin/subscription-templates");
+    subscriptionTemplates.value = data;
+  }
+
+  async function refreshAdminPanel() {
+    if (!isAdmin.value) return;
+
+    await Promise.allSettled([
+      refreshDashboard(),
+      refreshUsers(),
+      refreshTrend(),
+      refreshAuditLogs(),
+      refreshTemplates()
     ]);
-
-    if (dashboard.status === "fulfilled") {
-      adminDashboard.value = dashboard.value.data;
-    }
-    if (users.status === "fulfilled") {
-      adminUsers.value = users.value.data;
-    }
-    if (trend.status === "fulfilled") {
-      adminTrend.value = trend.value.data;
-    }
-    if (logs.status === "fulfilled") {
-      auditLogs.value = logs.value.data;
-    }
-    if (templates.status === "fulfilled") {
-      subscriptionTemplates.value = templates.value.data;
-    }
   }
 
   async function updateUserQuota(user: UserProfileResponse) {
     quotaSavingUserId.value = user.id;
     try {
       await apiClient.patch(`/admin/users/${user.id}/quota`, { dailyRequestQuota: user.dailyRequestQuota });
-      await refreshAdminPanel();
+      await refreshUsers();
     } finally {
       quotaSavingUserId.value = null;
     }
@@ -83,7 +105,7 @@ export function useAdmin(isAdmin: ComputedRef<boolean>) {
     roleSavingUserId.value = user.id;
     try {
       await apiClient.patch(`/admin/users/${user.id}/role`, { role: user.role });
-      await refreshAdminPanel();
+      await refreshUsers();
     } finally {
       roleSavingUserId.value = null;
     }
@@ -93,7 +115,7 @@ export function useAdmin(isAdmin: ComputedRef<boolean>) {
     statusSavingUserId.value = user.id;
     try {
       await apiClient.patch(`/admin/users/${user.id}/status`, { enabled: user.enabled });
-      await refreshAdminPanel();
+      await refreshUsers();
     } finally {
       statusSavingUserId.value = null;
     }
@@ -103,7 +125,7 @@ export function useAdmin(isAdmin: ComputedRef<boolean>) {
     tierSavingUserId.value = user.id;
     try {
       await apiClient.patch(`/admin/users/${user.id}/subscription-tier`, { subscriptionTier: user.subscriptionTier });
-      await refreshAdminPanel();
+      await refreshUsers();
     } finally {
       tierSavingUserId.value = null;
     }
@@ -117,7 +139,7 @@ export function useAdmin(isAdmin: ComputedRef<boolean>) {
         dailyQuota
       });
       user.modelQuotas = data;
-      await refreshAdminPanel();
+      await refreshUsers();
     } finally {
       modelQuotaSavingUserId.value = null;
     }
@@ -132,7 +154,12 @@ export function useAdmin(isAdmin: ComputedRef<boolean>) {
     auditFilters,
     modelQuotaSavingUserId,
     quotaSavingUserId,
+    refreshAuditLogs,
+    refreshDashboard,
     refreshAdminPanel,
+    refreshTemplates,
+    refreshTrend,
+    refreshUsers,
     roleSavingUserId,
     statusSavingUserId,
     subscriptionTemplates,
