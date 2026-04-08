@@ -406,6 +406,36 @@ select {
 .notice-banner {
   background: rgba(25, 110, 196, 0.1);
   color: #174e8c;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.notice-banner span {
+  min-width: 0;
+}
+
+.notice-close-button {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #5b6f8a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+
+.notice-close-button:hover {
+  background: rgba(255, 255, 255, 0.96);
+  color: #2d4f7d;
 }
 
 .workspace-shell {
@@ -413,6 +443,13 @@ select {
   grid-template-columns: 266px minmax(0, 1fr);
   gap: 14px;
   padding: 14px;
+  min-height: 100vh;
+  height: 100vh;
+  align-items: stretch;
+}
+
+.workspace-shell.sidebar-collapsed {
+  grid-template-columns: 84px minmax(0, 1fr);
 }
 
 .sidebar {
@@ -421,11 +458,60 @@ select {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  height: calc(100vh - 28px);
+  min-height: 0;
+  overflow: visible;
+  position: sticky;
+  top: 14px;
+  align-self: start;
+  transition: width 0.22s ease, padding 0.22s ease;
+  z-index: 4;
+}
+
+.sidebar.collapsed {
+  padding: 18px 10px;
 }
 
 .sidebar h2 {
   margin: 0;
   font-size: 22px;
+}
+
+.sidebar-brand {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.sidebar-brand-mark {
+  width: 28px;
+  height: 28px;
+  position: relative;
+}
+
+.sidebar-brand-mark span {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2c76cc, #55b8ff);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
+}
+
+.sidebar-brand-mark span:nth-child(1) { top: 0; left: 10px; }
+.sidebar-brand-mark span:nth-child(2) { top: 6px; left: 0; }
+.sidebar-brand-mark span:nth-child(3) { top: 6px; right: 0; }
+.sidebar-brand-mark span:nth-child(4) { bottom: 2px; left: 5px; }
+.sidebar-brand-mark span:nth-child(5) { bottom: 2px; right: 5px; }
+
+.sidebar-scroll-area {
+  display: grid;
+  gap: 12px;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .nav-list {
@@ -434,11 +520,35 @@ select {
 }
 
 .nav-list button {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
   text-align: left;
   padding: 12px 14px;
   border-radius: 14px;
   background: rgba(239, 242, 246, 0.8);
   color: #435065;
+}
+
+.sidebar.collapsed .nav-list button {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  padding: 12px 10px;
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
 }
 
 .sidebar-card,
@@ -451,10 +561,192 @@ select {
   background: rgba(242, 245, 248, 0.9);
 }
 
+.sidebar-account {
+  position: relative;
+  margin-top: auto;
+  flex: 0 0 auto;
+}
+
+.sidebar-account-trigger {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(208, 216, 228, 0.92);
+  background: rgba(255, 255, 255, 0.86);
+  color: #20304a;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(37, 55, 91, 0.08);
+}
+
+.sidebar.collapsed .sidebar-account-trigger {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  padding: 10px 8px;
+}
+
+.sidebar-account-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #173966, #2a5f9e);
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.sidebar-account-avatar.large {
+  width: 46px;
+  height: 46px;
+}
+
+.sidebar-account-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  font-weight: 600;
+}
+
+.sidebar-account-chevron {
+  color: #71819a;
+  font-size: 12px;
+  transform: rotate(180deg);
+  transition: transform 0.18s ease;
+}
+
+.sidebar-account-chevron.open {
+  transform: rotate(0deg);
+}
+
+.sidebar-account-menu {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 10px);
+  width: min(230px, 100%);
+  padding: 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(218, 225, 235, 0.95);
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 20px 34px rgba(43, 59, 93, 0.16);
+  display: grid;
+  gap: 6px;
+  z-index: 20;
+}
+
+.sidebar.collapsed .sidebar-account-menu {
+  left: calc(100% + 12px);
+  bottom: 0;
+  width: 220px;
+}
+
+.sidebar-account-menu-header {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 6px 6px 10px;
+  border-bottom: 1px solid rgba(227, 233, 242, 0.9);
+}
+
+.sidebar-account-menu-header strong {
+  display: block;
+  color: #1c2b43;
+}
+
+.sidebar-account-menu-header p {
+  margin: 4px 0 0;
+  color: #71809a;
+  font-size: 12px;
+}
+
+.sidebar-account-menu-item {
+  border: none;
+  background: transparent;
+  padding: 10px 12px;
+  border-radius: 14px;
+  text-align: left;
+  color: #31415d;
+  cursor: pointer;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+
+.sidebar-account-menu-item:hover {
+  background: rgba(239, 243, 248, 0.96);
+}
+
+.sidebar-account-menu-item.logout {
+  color: #c94c47;
+}
+
+.sidebar-account-menu-item.logout:hover {
+  background: rgba(248, 233, 232, 0.98);
+}
+
 .workspace-main {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-height: calc(100vh - 28px);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.sidebar-collapse-toggle {
+  position: absolute;
+  top: 50%;
+  right: -14px;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(211, 220, 230, 0.95);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #7b8699;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(48, 61, 92, 0.12);
+  z-index: 5;
+}
+
+.sidebar-collapse-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+.sidebar-collapse-toggle.collapsed svg {
+  transform: rotate(180deg);
+}
+
+.workspace-main > * {
+  min-height: 0;
+}
+
+.chat-layout,
+.account-layout,
+.admin-layout {
+  display: grid;
+  gap: 12px;
+  min-height: 0;
+  height: 100%;
+}
+
+.chat-layout,
+.account-layout {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.admin-layout {
+  grid-template-rows: auto auto minmax(0, 1fr);
 }
 
 .panel-header {
@@ -473,6 +765,8 @@ select {
 .account-grid {
   display: grid;
   gap: 12px;
+  align-items: start;
+  min-height: 0;
 }
 
 .panel-grid {
@@ -481,10 +775,16 @@ select {
 
 .admin-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: auto;
+  padding-right: 4px;
+  align-content: start;
 }
 
 .account-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: auto;
+  padding-right: 4px;
+  align-content: start;
 }
 
 .surface {
@@ -497,12 +797,19 @@ select {
 .recent-card {
   display: grid;
   gap: 16px;
+  min-height: 0;
+}
+
+.side-column {
+  align-self: start;
+  min-height: 0;
 }
 
 .chat-surface {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(246, 249, 253, 0.94)),
     radial-gradient(circle at top right, rgba(241, 155, 94, 0.12), transparent 28%);
+  min-height: 0;
 }
 
 .chat-body {
@@ -589,6 +896,50 @@ select {
   color: #18263c;
 }
 
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card-header h3 {
+  margin-bottom: 0;
+}
+
+.card-collapse-button {
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(215, 223, 233, 0.94);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #6b7890;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
+}
+
+.card-collapse-button:hover {
+  background: rgba(243, 247, 251, 0.98);
+  color: #435065;
+}
+
+.card-collapse-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.card-collapse-button.collapsed svg {
+  transform: rotate(90deg);
+}
+
+.stats-card.collapsed,
+.recent-card.collapsed {
+  gap: 0;
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -616,6 +967,18 @@ select {
   padding: 12px;
   border-radius: 16px;
   background: rgba(244, 247, 250, 0.92);
+}
+
+.recent-card {
+  min-height: 0;
+}
+
+.recent-list {
+  display: grid;
+  gap: 10px;
+  max-height: min(42vh, 420px);
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .toolbar {
@@ -682,7 +1045,8 @@ select {
 }
 
 .user-table {
-  overflow-x: auto;
+  overflow: auto;
+  max-height: clamp(320px, 34vh, 470px);
   padding-bottom: 4px;
 }
 
@@ -775,7 +1139,7 @@ select {
 .conversation-list {
   display: grid;
   gap: 10px;
-  max-height: 280px;
+  max-height: 220px;
   overflow-y: auto;
 }
 
@@ -891,6 +1255,14 @@ select {
   color: #556274;
 }
 
+.audit-log-list {
+  display: grid;
+  gap: 10px;
+  max-height: clamp(340px, 38vh, 520px);
+  overflow: auto;
+  padding-right: 4px;
+}
+
 .audit-error {
   color: #a64040;
 }
@@ -968,14 +1340,57 @@ select {
   .workspace-shell {
     grid-template-columns: 1fr;
     padding: 16px;
+    min-height: auto;
+    height: auto;
   }
 
   .sidebar {
     order: 2;
+    position: static;
+    max-height: none;
+    height: auto;
+    overflow: visible;
+  }
+
+  .workspace-shell.sidebar-collapsed {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar.collapsed {
+    padding: 18px 16px;
+  }
+
+  .sidebar.collapsed .nav-list button {
+    grid-template-columns: 20px minmax(0, 1fr);
+    justify-items: start;
+    padding: 12px 14px;
+  }
+
+  .sidebar.collapsed .sidebar-account-trigger {
+    grid-template-columns: 42px minmax(0, 1fr) 18px;
+    justify-items: stretch;
+    padding: 10px 12px;
+  }
+
+  .sidebar-scroll-area {
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .sidebar-account-menu {
+    position: static;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .sidebar-collapse-toggle {
+    display: none;
   }
 
   .workspace-main {
     order: 1;
+    max-height: none;
+    overflow: visible;
   }
 
   .panel-header,

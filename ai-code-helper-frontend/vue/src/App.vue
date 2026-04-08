@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import AccountWorkspace from "./components/AccountWorkspace.vue";
 import AdminWorkspace from "./components/AdminWorkspace.vue";
 import AuthScreen from "./components/AuthScreen.vue";
@@ -12,13 +12,40 @@ import type { AppView } from "./types/app";
 
 const activeView = ref<AppView>("chat");
 const notice = ref("");
+const sidebarCollapsed = ref(false);
+let noticeTimer: number | null = null;
 
 const auth = useAuth();
+
+function clearNotice() {
+  notice.value = "";
+  if (noticeTimer !== null) {
+    window.clearTimeout(noticeTimer);
+    noticeTimer = null;
+  }
+}
+
+function showNotice(message: string) {
+  if (!message) {
+    clearNotice();
+    return;
+  }
+  if (noticeTimer !== null) {
+    window.clearTimeout(noticeTimer);
+  }
+  notice.value = "";
+  requestAnimationFrame(() => {
+    notice.value = message;
+    noticeTimer = window.setTimeout(() => {
+      clearNotice();
+    }, 4000);
+  });
+}
 
 function handleLogout() {
   workspace.resetWorkspace();
   auth.logout();
-  notice.value = "";
+  clearNotice();
   activeView.value = "chat";
 }
 
@@ -27,7 +54,7 @@ const workspace = useChatWorkspace({
   token: auth.token,
   isAuthenticated: auth.isAuthenticated,
   activeView,
-  notice,
+  showNotice,
   refreshUserData: auth.refreshUserData,
   onUnauthorized: handleLogout
 });
@@ -54,9 +81,9 @@ async function handleRegister() {
 async function handleSavePreferredModel() {
   try {
     await auth.savePreferredModel();
-    notice.value = "默认模型已更新。";
+    showNotice("默认模型已更新。");
   } catch (error: any) {
-    notice.value = error?.response?.data?.message ?? "模型更新失败。";
+    showNotice(error?.response?.data?.message ?? "模型更新失败。");
   }
 }
 
@@ -82,6 +109,12 @@ onMounted(async () => {
     }
   }
 });
+
+onBeforeUnmount(() => {
+  if (noticeTimer !== null) {
+    window.clearTimeout(noticeTimer);
+  }
+});
 </script>
 
 <template>
@@ -98,8 +131,9 @@ onMounted(async () => {
       @register="handleRegister"
     />
 
-    <section v-else class="workspace-shell">
+    <section v-else :class="['workspace-shell', `workspace-shell--${activeView}`, { 'sidebar-collapsed': sidebarCollapsed }]">
       <WorkspaceSidebar
+        :collapsed="sidebarCollapsed"
         :active-view="activeView"
         :is-admin="auth.isAdmin.value"
         :current-user="auth.currentUser.value"
@@ -118,10 +152,14 @@ onMounted(async () => {
         @delete-conversation="workspace.deleteConversation"
         @save-model="handleSavePreferredModel"
         @logout="handleLogout"
+        @toggle-collapse="sidebarCollapsed = !sidebarCollapsed"
       />
 
-      <main class="workspace-main">
-        <p v-if="notice" class="notice-banner">{{ notice }}</p>
+      <main :class="['workspace-main', `workspace-main--${activeView}`]">
+        <div v-if="notice" class="notice-banner">
+          <span>{{ notice }}</span>
+          <button class="notice-close-button" aria-label="关闭提示" @click="clearNotice">×</button>
+        </div>
 
         <ChatWorkspace
           v-if="activeView === 'chat'"

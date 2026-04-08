@@ -13,7 +13,7 @@ interface ChatWorkspaceOptions {
   token: Ref<string>;
   isAuthenticated: ComputedRef<boolean>;
   activeView: Ref<AppView>;
-  notice: Ref<string>;
+  showNotice: (message: string) => void;
   refreshUserData: () => Promise<void>;
   onUnauthorized: () => void;
 }
@@ -114,7 +114,7 @@ export function useChatWorkspace(options: ChatWorkspaceOptions) {
 
   async function createConversation(makeActive = true) {
     creatingConversation.value = true;
-    options.notice.value = "";
+    options.showNotice("");
     try {
       const response = await handleAuthorizedRequest(() =>
         apiClient.post<ConversationSummaryResponse>("/conversations", {})
@@ -129,7 +129,7 @@ export function useChatWorkspace(options: ChatWorkspaceOptions) {
       }
       return created;
     } catch (error: any) {
-      options.notice.value = error?.response?.data?.message ?? "创建会话失败。";
+      options.showNotice(error?.response?.data?.message ?? "创建会话失败。");
       return null;
     } finally {
       creatingConversation.value = false;
@@ -140,7 +140,7 @@ export function useChatWorkspace(options: ChatWorkspaceOptions) {
     const nextTitle = window.prompt("请输入新的会话标题", currentTitle)?.trim();
     if (!nextTitle) return;
     renamingConversationId.value = id;
-    options.notice.value = "";
+    options.showNotice("");
     try {
       const response = await handleAuthorizedRequest(() =>
         apiClient.patch<ConversationSummaryResponse>(`/conversations/${id}/title`, { title: nextTitle })
@@ -148,9 +148,9 @@ export function useChatWorkspace(options: ChatWorkspaceOptions) {
       const updated = response.data;
       conversations.value = conversations.value.map((item) => (item.id === id ? updated : item));
       if (currentConversationId.value === id) currentConversationTitle.value = updated.title;
-      options.notice.value = "会话标题已更新。";
+      options.showNotice("会话标题已更新。");
     } catch (error: any) {
-      options.notice.value = error?.response?.data?.message ?? "会话重命名失败。";
+      options.showNotice(error?.response?.data?.message ?? "会话重命名失败。");
     } finally {
       renamingConversationId.value = null;
     }
@@ -159,7 +159,7 @@ export function useChatWorkspace(options: ChatWorkspaceOptions) {
   async function deleteConversation(id: number) {
     if (!window.confirm("确认删除这个对话吗？删除后不可恢复。")) return;
     deletingConversationId.value = id;
-    options.notice.value = "";
+    options.showNotice("");
     try {
       await handleAuthorizedRequest(() => apiClient.delete(`/conversations/${id}`));
       conversations.value = conversations.value.filter((item) => item.id !== id);
@@ -173,9 +173,9 @@ export function useChatWorkspace(options: ChatWorkspaceOptions) {
           messages.value = [];
         }
       }
-      options.notice.value = "对话已删除。";
+      options.showNotice("对话已删除。");
     } catch (error: any) {
-      options.notice.value = error?.response?.data?.message ?? "删除对话失败。";
+      options.showNotice(error?.response?.data?.message ?? "删除对话失败。");
     } finally {
       deletingConversationId.value = null;
     }
@@ -185,15 +185,15 @@ export function useChatWorkspace(options: ChatWorkspaceOptions) {
     if (!currentConversationId.value || typeof id !== "number") return;
     if (!window.confirm("确认删除这条消息吗？")) return;
     deletingMessageId.value = id;
-    options.notice.value = "";
+    options.showNotice("");
     try {
       await handleAuthorizedRequest(() =>
         apiClient.delete(`/conversations/${currentConversationId.value}/messages/${id}`)
       );
       await Promise.all([openConversation(currentConversationId.value, false), loadConversations()]);
-      options.notice.value = "消息已删除。";
+      options.showNotice("消息已删除。");
     } catch (error: any) {
-      options.notice.value = error?.response?.data?.message ?? "删除消息失败。";
+      options.showNotice(error?.response?.data?.message ?? "删除消息失败。");
     } finally {
       deletingMessageId.value = null;
     }
@@ -311,7 +311,7 @@ export function useChatWorkspace(options: ChatWorkspaceOptions) {
 
     editingMessageId.value = message.id;
     isStreaming.value = true;
-    options.notice.value = "";
+    options.showNotice("");
 
     try {
       streamController = new AbortController();
@@ -324,7 +324,7 @@ export function useChatWorkspace(options: ChatWorkspaceOptions) {
       });
       await consumeSseResponse(response, aiMessage);
       await Promise.all([options.refreshUserData(), loadConversations(), openConversation(currentConversationId.value, false)]);
-      options.notice.value = "消息已更新并重新生成。";
+      options.showNotice("消息已更新并重新生成。");
     } catch (error: any) {
       aiMessage.content += `\n\n${error?.message ?? "重新生成失败"}`;
       messages.value = [...messages.value];

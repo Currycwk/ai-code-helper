@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import type { ChatMessage, UserProfileResponse, UserUsageSummaryResponse } from "../types/app";
 
 defineProps<{
@@ -27,6 +28,9 @@ const emit = defineEmits<{
   (e: "delete-message", id: number | string): void;
   (e: "regenerate-message", message: ChatMessage): void;
 }>();
+
+const statsCollapsed = ref(false);
+const recentCollapsed = ref(false);
 </script>
 
 <template>
@@ -90,26 +94,42 @@ const emit = defineEmits<{
       </section>
 
       <section class="panel side-column">
-        <div class="surface stats-card">
-          <h3>个人调用统计</h3>
-          <div class="stats-grid">
+        <div :class="['surface stats-card', { collapsed: statsCollapsed }]">
+          <div class="card-header">
+            <h3>个人调用统计</h3>
+            <button class="card-collapse-button" :class="{ collapsed: statsCollapsed }" :title="statsCollapsed ? '展开个人调用统计' : '收起个人调用统计'" @click="statsCollapsed = !statsCollapsed">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="m8 10 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+          <div v-if="!statsCollapsed" class="stats-grid">
             <div><span>累计请求</span><strong>{{ usageSummary?.totalRequests ?? 0 }}</strong></div>
             <div><span>输入字符</span><strong>{{ usageSummary?.totalPromptChars ?? 0 }}</strong></div>
             <div><span>输出字符</span><strong>{{ usageSummary?.totalCompletionChars ?? 0 }}</strong></div>
             <div><span>当前模型</span><strong>{{ currentUser?.preferredModel ?? "-" }}</strong></div>
           </div>
         </div>
-        <div class="surface recent-card">
-          <h3>最近调用</h3>
-          <div v-if="!usageSummary?.recentCalls?.length" class="empty-inline">暂无调用记录</div>
-          <div v-for="item in usageSummary?.recentCalls ?? []" :key="`${item.createdAt}-${item.memoryId}`" class="recent-item">
-            <div class="recent-row">
-              <strong>{{ item.modelName }}</strong>
-              <span>{{ item.latencyMs }} ms</span>
-            </div>
-            <div class="recent-row subtle">
-              <span>{{ item.conversationTitle || `会话 ${item.memoryId}` }}</span>
-              <span>{{ item.success ? "成功" : "失败" }}</span>
+        <div :class="['surface recent-card', { collapsed: recentCollapsed }]">
+          <div class="card-header">
+            <h3>最近调用</h3>
+            <button class="card-collapse-button" :class="{ collapsed: recentCollapsed }" :title="recentCollapsed ? '展开最近调用' : '收起最近调用'" @click="recentCollapsed = !recentCollapsed">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="m8 10 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+          <div v-if="!recentCollapsed && !usageSummary?.recentCalls?.length" class="empty-inline">暂无调用记录</div>
+          <div v-else-if="!recentCollapsed" class="recent-list">
+            <div v-for="item in usageSummary?.recentCalls ?? []" :key="`${item.createdAt}-${item.memoryId}`" class="recent-item">
+              <div class="recent-row">
+                <strong>{{ item.modelName }}</strong>
+                <span>{{ item.latencyMs }} ms</span>
+              </div>
+              <div class="recent-row subtle">
+                <span>{{ item.conversationTitle || `会话 ${item.memoryId}` }}</span>
+                <span>{{ item.success ? "成功" : "失败" }}</span>
+              </div>
             </div>
           </div>
         </div>
