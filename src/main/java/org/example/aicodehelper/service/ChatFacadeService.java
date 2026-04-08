@@ -6,6 +6,11 @@ import org.example.aicodehelper.exception.ForbiddenException;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
+/**
+ * AI 对话门面服务。
+ * 负责把“选择模型、校验配额、发起聊天流”这几步串起来，
+ * 让控制器只关心请求编排，不直接依赖底层模型工厂和统计细节。
+ */
 @Service
 @RequiredArgsConstructor
 public class ChatFacadeService {

@@ -280,4 +280,4 @@ npm run dev
 
 ## License
 
-如需开源发布，可在这里补充许可证说明，例如 MIT License。
+本项目采用 MIT License。

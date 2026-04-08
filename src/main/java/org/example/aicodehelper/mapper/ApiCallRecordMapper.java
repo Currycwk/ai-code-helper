@@ -17,6 +17,11 @@ import org.example.aicodehelper.mapper.row.UserCharSummaryRow;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 调用审计 Mapper。
+ * 负责访问 api_call_record 表，提供调用日志写入、按条件筛选、
+ * 用户统计、趋势统计和管理员审计查询等数据访问能力。
+ */
 @Mapper
 public interface ApiCallRecordMapper {
 

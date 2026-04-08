@@ -16,6 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 大模型服务工厂。
+ * 根据模型目录配置动态构建并缓存不同模型对应的 AI 服务实例，
+ * 同时把聊天记忆、RAG 检索和流式模型能力统一装配到 LangChain4j 服务中。
+ */
+
 @Service
 @RequiredArgsConstructor
 public class ModelBackedAiServiceFactory {

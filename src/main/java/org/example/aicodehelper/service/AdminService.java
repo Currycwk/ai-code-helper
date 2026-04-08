@@ -21,6 +21,11 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+/**
+ * 管理后台核心服务。
+ * 负责聚合管理员界面所需的数据和操作能力，
+ * 包括仪表盘统计、用户管理、套餐模板、模型配额和调用审计日志。
+ */
 @Service
 @RequiredArgsConstructor
 public class AdminService {

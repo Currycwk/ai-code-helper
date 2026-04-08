@@ -15,6 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 用户账户服务。
+ * 负责用户查询、资料转换、启停状态更新、套餐与配额更新，以及默认模型和模型配额管理，
+ * 是用户体系相关业务逻辑的核心封装层。
+ */
 @Service
 @RequiredArgsConstructor
 public class UserAccountService {

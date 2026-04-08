@@ -28,6 +28,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * 会话中心控制器。
+ * 负责会话的创建、查询、重命名、删除，以及消息级别的删除操作，
+ * 对外提供“历史对话”和“继续对话”所需的核心接口。
+ */
 @RestController
 @RequestMapping("/conversations")
 @RequiredArgsConstructor

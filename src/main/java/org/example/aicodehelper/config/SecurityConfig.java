@@ -20,6 +20,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Spring Security 核心配置。
+ * 负责定义接口访问规则、JWT 过滤器接入方式、密码加密器以及认证管理器，
+ * 是整个项目鉴权与权限控制的总入口。
+ */
 @Configuration
 @EnableMethodSecurity
 @RequiredArgsConstructor

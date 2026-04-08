@@ -15,6 +15,11 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/**
+ * 调用审计实体。
+ * 对应 api_call_record 表，记录一次模型调用的请求摘要、响应摘要、
+ * 字符统计、耗时、成功状态和错误信息，供用户统计和管理员审计使用。
+ */
 @Getter
 @Setter
 @Entity

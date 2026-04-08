@@ -25,6 +25,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 认证控制器。
+ * 提供注册、登录和查询当前登录用户信息的接口，
+ * 是前端建立用户会话和获取当前身份状态的入口。
+ */
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor

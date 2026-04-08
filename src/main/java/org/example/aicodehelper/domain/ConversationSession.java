@@ -16,6 +16,11 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/**
+ * 会话主实体。
+ * 对应 conversation_session 表，保存会话标题、摘要、更新时间和所属用户，
+ * 是会话中心列表和会话归属校验的基础数据对象。
+ */
 @Getter
 @Setter
 @Entity

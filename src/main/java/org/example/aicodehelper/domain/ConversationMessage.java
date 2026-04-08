@@ -17,6 +17,11 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/**
+ * 会话消息实体。
+ * 对应 conversation_message 表，表示会话中的一条消息，
+ * 可区分用户消息、模型回复和系统消息，并记录模型名与错误信息。
+ */
 @Getter
 @Setter
 @Entity

@@ -18,6 +18,11 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * RAG 配置类。
+ * 负责加载本地知识库文档、完成切分和向量化，并暴露给大模型服务使用的检索器；
+ * 如果初始化失败，会自动降级为空检索，避免影响应用启动。
+ */
 @Configuration
 @Slf4j
 public class RagConfig {

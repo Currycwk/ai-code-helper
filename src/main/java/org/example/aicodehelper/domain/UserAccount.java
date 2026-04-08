@@ -15,6 +15,11 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/**
+ * 用户账户实体。
+ * 对应 user_account 表，保存登录凭据、角色、套餐、启用状态、
+ * 默认模型和每日总配额，是整个用户体系的核心数据对象。
+ */
 @Getter
 @Setter
 @Entity

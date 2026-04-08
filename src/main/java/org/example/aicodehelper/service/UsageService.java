@@ -14,6 +14,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+/**
+ * 调用统计服务。
+ * 负责记录模型调用日志，并提供用户侧和管理员侧所需的统计数据，
+ * 比如今日调用次数、字符统计、最近调用记录和按天趋势数据。
+ */
 @Service
 @RequiredArgsConstructor
 public class UsageService {

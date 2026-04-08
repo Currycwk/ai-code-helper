@@ -12,6 +12,11 @@ import org.example.aicodehelper.domain.UserModelQuota;
 
 import java.util.List;
 
+/**
+ * 用户模型配额 Mapper。
+ * 负责 user_model_quota 表的查询与维护，
+ * 用于按模型粒度限制用户每日可用调用次数。
+ */
 @Mapper
 public interface UserModelQuotaMapper {
 

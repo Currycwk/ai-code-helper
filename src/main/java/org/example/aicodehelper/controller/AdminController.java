@@ -33,6 +33,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.time.LocalDateTime;
 
+/**
+ * 管理员后台控制器。
+ * 统一暴露后台运营相关接口，包括用户管理、套餐与配额管理、
+ * 调用趋势统计和审计日志查询，供管理员界面使用。
+ */
 @RestController
 @RequestMapping("/admin")
 @PreAuthorize("hasRole('ADMIN')")

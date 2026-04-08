@@ -8,6 +8,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 
+/**
+ * 项目启动入口。
+ * 负责启动 Spring Boot 应用、扫描 MyBatis Mapper，并在应用就绪后输出接口文档地址，
+ * 方便本地开发时快速进入 Knife4j 和 OpenAPI 文档页面。
+ */
 @SpringBootApplication
 @Slf4j
 @MapperScan("org.example.aicodehelper.mapper")

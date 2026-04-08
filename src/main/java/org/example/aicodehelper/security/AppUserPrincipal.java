@@ -10,6 +10,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * 当前登录用户主体对象。
+ * 对 UserAccount 做了一层安全上下文适配，封装成 Spring Security 可识别的认证主体，
+ * 方便控制器和权限框架统一获取用户 ID、角色和用户名。
+ */
 @Getter
 public class AppUserPrincipal implements UserDetails {
 

@@ -12,6 +12,11 @@ import org.example.aicodehelper.domain.UserAccount;
 
 import java.util.List;
 
+/**
+ * 用户账户 Mapper。
+ * 负责 user_account 表的基础读写，
+ * 是登录鉴权、用户管理、套餐与配额更新等能力的数据入口。
+ */
 @Mapper
 public interface UserAccountMapper {
 

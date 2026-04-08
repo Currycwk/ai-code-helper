@@ -34,6 +34,11 @@ import reactor.core.publisher.Mono;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * AI 对话控制器。
+ * 负责接收前端的聊天请求，把用户输入交给大模型服务进行流式生成，
+ * 并在输出过程中同步完成会话消息持久化、配额校验和调用审计记录。
+ */
 @RestController
 @RequestMapping("/ai")
 @RequiredArgsConstructor
@@ -61,14 +66,14 @@ public class AiController {
                                                     @RequestParam long conversationId,
                                                     @Parameter(description = "用户输入内容。", example = "帮我制定一份三个月 Java 后端学习路线。")
                                                     @RequestParam String message) {
-        UserAccount user = userAccountService.getRequiredById(principal.getId());
-        String modelName = chatFacadeService.resolveModel(user);
-        chatFacadeService.ensureQuota(user, modelName);
-        ConversationSession conversation = conversationService.getOwnedConversation(user, conversationId);
-        conversationService.appendUserMessage(conversation, message);
+        UserAccount user = userAccountService.getRequiredById(principal.getId()); //根据登录用户 ID 查完整用户对象
+        String modelName = chatFacadeService.resolveModel(user); //解析用户当前应该用哪个模型
+        chatFacadeService.ensureQuota(user, modelName); //校验配额
+        ConversationSession conversation = conversationService.getOwnedConversation(user, conversationId); //校验这个会话是不是当前用户自己的
+        conversationService.appendUserMessage(conversation, message); //先把用户消息写进会话消息表
 
-        long startNanos = System.nanoTime();
-        StringBuilder responseBuilder = new StringBuilder();
+        long startNanos = System.nanoTime(); //统计调用总耗时
+        StringBuilder responseBuilder = new StringBuilder(); //用于拼接返回的文本
 
         Flux<ServerSentEvent<SseChatEvent>> stream = chatFacadeService.chatStream(user, conversationId, message)
                 .doOnNext(responseBuilder::append)
@@ -149,7 +154,7 @@ public class AiController {
                 .onErrorResume(error -> {
                     String errorMessage = error.getMessage();
                     long elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos);
-                    String persistedContent = responseBuilder.isEmpty() ? "[閿欒] " + errorMessage : responseBuilder.toString();
+                    String persistedContent = responseBuilder.isEmpty() ? "[错误] " + errorMessage : responseBuilder.toString();
                     conversationService.appendAssistantMessage(conversation, modelName, persistedContent, errorMessage);
                     usageService.record(user, modelName, conversationId, request.getMessage(), responseBuilder.toString(), elapsedMs, false, errorMessage);
                     return Flux.just(ServerSentEvent.<SseChatEvent>builder()

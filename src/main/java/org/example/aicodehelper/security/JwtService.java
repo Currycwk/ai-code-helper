@@ -13,6 +13,11 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
+/**
+ * JWT 服务。
+ * 负责生成、解析和校验 JWT Token，
+ * 是登录后签发令牌以及后续请求中识别用户身份的核心组件。
+ */
 @Service
 public class JwtService {
 

@@ -25,6 +25,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * 会话中心核心服务。
+ * 负责管理会话和消息的完整生命周期，包括创建会话、追加消息、重命名、
+ * 删除消息、编辑后重新生成，以及同步维护会话摘要和上下文记忆。
+ */
 @Service
 @RequiredArgsConstructor
 public class ConversationService {
