@@ -33,6 +33,12 @@ public class ModelBackedAiServiceFactory {
 
     private final Map<String, AiCodeHelperService> cache = new ConcurrentHashMap<>();
 
+    /**
+     * 先把模型名标准化
+     * 看缓存里有没有这个模型对应的 AiCodeHelperService
+     * 有就直接复用
+     * 没有就调用 buildService() 动态构建一个
+     */
     public AiCodeHelperService getService(String modelName) {
         String resolved = modelCatalogService.resolvePreferredModel(modelName);
         return cache.computeIfAbsent(resolved, this::buildService);
