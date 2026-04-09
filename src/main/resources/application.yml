@@ -48,10 +48,11 @@ knife4j:
   enable: true
 mybatis:
   configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
     map-underscore-to-camel-case: true
 logging:
   level:
-    org.mybatis.spring: warn
+    org.mybatis: warn
+    org.mybatis.spring: error
     org.mybatis.spring.SqlSessionUtils: error
-    org.springframework.jdbc.datasource.DataSourceUtils: error
+    org.springframework.jdbc.datasource: error
